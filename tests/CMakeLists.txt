@@ -10,18 +10,21 @@ include_directories(BEFORE SYSTEM ./workarounds/wrl)
 # Because we don't always use msbuild, we need to run nuget manually
 find_program(NUGET nuget)
 if (NOT NUGET)
-    message(FATAL_ERROR "Unable to find the nuget CLI tool. Please install it from https://www.nuget.org/downloads and ensure it has been added to the PATH")
+    # If nuget isn't available, try using vcpkg port of cppwinrt
+    find_package(cppwinrt CONFIG REQUIRED)
+    set(CPPWINRT ${CPPWINRT_TOOL})
+else()
+    execute_process(COMMAND
+        ${NUGET} install Microsoft.Windows.CppWinRT -Version ${CPPWINRT_VERSION} -OutputDirectory packages
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        RESULT_VARIABLE ret)
+    if (NOT ret EQUAL 0)
+        message(FATAL_ERROR "Failed to install nuget package Microsoft.Windows.CppWinRT.${CPPWINRT_VERSION}")
+    endif()
+    set(CPPWINRT ${CMAKE_BINARY_DIR}/packages/Microsoft.Windows.CppWinRT.${CPPWINRT_VERSION}/bin/cppwinrt.exe)
 endif()
+message(STATUS "Using cppwinrt.exe at ${CPPWINRT}")
 
-execute_process(COMMAND
-    ${NUGET} install Microsoft.Windows.CppWinRT -Version ${CPPWINRT_VERSION} -OutputDirectory packages
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    RESULT_VARIABLE ret)
-if (NOT ret EQUAL 0)
-    message(FATAL_ERROR "Failed to install nuget package Microsoft.Windows.CppWinRT.${CPPWINRT_VERSION}")
-endif()
-
-set(CPPWINRT ${CMAKE_BINARY_DIR}/packages/Microsoft.Windows.CppWinRT.${CPPWINRT_VERSION}/bin/cppwinrt.exe)
 execute_process(COMMAND
     ${CPPWINRT} -input sdk+ -output include
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
@@ -118,15 +121,23 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     # Sanitizers are not available with debug libraries
     # Starting with Clang 17, there appears to be some issue where linking to the dynamic asan libraries seems to think that
     # things like 'operator new' are present in the executable, but only for x64 for some reason
-    set(ASAN_AVAILABLE NOT ${DEBUG_BUILD} AND $ENV{Platform} STREQUAL "x86")
-    set(UBSAN_AVAILABLE NOT ${DEBUG_BUILD})
+    if (NOT "${DEBUG_BUILD}" AND "$ENV{Platform}" STREQUAL "x86")
+        set(ASAN_AVAILABLE TRUE)
+    else()
+        set(ASAN_AVAILABLE FALSE)
+    endif()
+    if (NOT ${DEBUG_BUILD})
+        set(UBSAN_AVAILABLE TRUE)
+    else()
+        set(UBSAN_AVAILABLE FALSE)
+    endif()
 endif()
 
-if (${ASAN_AVAILABLE})
+if (ASAN_AVAILABLE)
     add_subdirectory(sanitize-address)
 endif()
 
-if (${UBSAN_AVAILABLE})
+if (UBSAN_AVAILABLE)
     # TODO: Disabled until https://github.com/microsoft/STL/issues/3568 is resolved
     # add_subdirectory(sanitize-undefined-behavior)
 endif()

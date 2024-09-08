@@ -1,0 +1,26 @@
+{
+    "$schema": "https://cmake.org/cmake/help/latest/_downloads/3e2d73bff478d88a7de0de736ba5e361/schema.json",
+    "version": 8,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 30,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "LLVM-MinGW",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/out/build",
+            "toolchainFile": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "C:/llvm-mingw-20240606-ucrt-x86_64/bin/clang.exe",
+                "CMAKE_CXX_COMPILER": "C:/llvm-mingw-20240606-ucrt-x86_64/bin/clang++.exe",
+                "CMAKE_C_FLAGS": "-fms-extensions",
+                "CMAKE_CXX_FLAGS": "-fms-extensions"
+            },
+            "environment": {
+                "VCPKG_ROOT": "${sourceDir}/vcpkg"
+            }
+        }
+    ]
+}

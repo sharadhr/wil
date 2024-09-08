@@ -1,7 +1,8 @@
 {
   "dependencies": [
     "detours",
-    "catch2"
+    "catch2",
+    "cppwinrt"
   ],
-  "builtin-baseline": "64e15f6669480b2d2bff1e5e815c571a8213421e"
+  "builtin-baseline": "a56c0652288c8580b75e300761739d30adb1847c"
 }
