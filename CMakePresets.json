@@ -22,5 +22,11 @@
                 "VCPKG_ROOT": "${sourceDir}/vcpkg"
             }
         }
+    ],
+    "buildPresets": [
+        {
+            "name": "LLVM-MinGW",
+            "configurePreset": "LLVM-MinGW"
+        }
     ]
 }
