@@ -11,12 +11,13 @@
             "name": "LLVM-MinGW",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/out/build",
+            "installDir": "${sourceDir}/out/install",
             "toolchainFile": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "C:/llvm-mingw-20240606-ucrt-x86_64/bin/clang.exe",
                 "CMAKE_CXX_COMPILER": "C:/llvm-mingw-20240606-ucrt-x86_64/bin/clang++.exe",
-                "CMAKE_C_FLAGS": "-fms-extensions",
-                "CMAKE_CXX_FLAGS": "-fms-extensions"
+                "CMAKE_C_FLAGS": "-fms-extensions -D_M_AMD64",
+                "CMAKE_CXX_FLAGS": "-fms-extensions -D_M_AMD64"
             },
             "environment": {
                 "VCPKG_ROOT": "${sourceDir}/vcpkg"
@@ -26,7 +27,8 @@
     "buildPresets": [
         {
             "name": "LLVM-MinGW",
-            "configurePreset": "LLVM-MinGW"
+            "configurePreset": "LLVM-MinGW",
+            "verbose": true
         }
     ]
 }
